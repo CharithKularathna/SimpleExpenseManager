@@ -29,34 +29,16 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
 
-/**
- * The ExpenseManager acts as the mediator when performing transactions. This is an abstract class with an abstract
- * method to setup the DAO objects depending on the implementation.
- */
-public abstract class ExpenseManager implements Serializable {
-    private AccountDAO accountsHolder;
-    private TransactionDAO transactionsHolder;
 
-    /***
-     * Get list of account numbers as String.
-     *
-     * @return
-     */
+public abstract class ExpenseManager implements Serializable {
+    private AccountDAO accountHolder;
+    private TransactionDAO transactionHolder;
+
+
     public List<String> getAccountNumbersList() {
-        return accountsHolder.getAccountNumbersList();
+        return accountHolder.getAccountNumbersList();
     }
 
-    /***
-     * Update the account balance.
-     *
-     * @param accountNo
-     * @param day
-     * @param month
-     * @param year
-     * @param expenseType
-     * @param amount
-     * @throws InvalidAccountException
-     */
     public void updateAccountBalance(String accountNo, int day, int month, int year, ExpenseType expenseType,
                                      String amount) throws InvalidAccountException {
         Calendar calendar = Calendar.getInstance();
@@ -65,72 +47,40 @@ public abstract class ExpenseManager implements Serializable {
 
         if (!amount.isEmpty()) {
             double amountVal = Double.parseDouble(amount);
-            transactionsHolder.logTransaction(transactionDate, accountNo, expenseType, amountVal);
-            accountsHolder.updateBalance(accountNo, expenseType, amountVal);
+            transactionHolder.logTransaction(transactionDate, accountNo, expenseType, amountVal);
+            accountHolder.updateBalance(accountNo, expenseType, amountVal);
         }
     }
 
-    /***
-     * Get a list of transaction logs.
-     *
-     * @return
-     */
+
     public List<Transaction> getTransactionLogs() {
-        return transactionsHolder.getPaginatedTransactionLogs(10);
+        return transactionHolder.getPaginatedTransactionLogs(10);
     }
 
-    /***
-     * Add account to the accounts dao.
-     *
-     * @param accountNo
-     * @param bankName
-     * @param accountHolderName
-     * @param initialBalance
-     */
     public void addAccount(String accountNo, String bankName, String accountHolderName, double initialBalance) {
         Account account = new Account(accountNo, bankName, accountHolderName, initialBalance);
-        accountsHolder.addAccount(account);
+        accountHolder.addAccount(account);
     }
 
-    /***
-     * Get access to the AccountDAO concrete implementation.
-     *
-     * @return
-     */
+
     public AccountDAO getAccountsDAO() {
-        return accountsHolder;
+        return accountHolder;
     }
 
-    /***
-     * Set the concrete AccountDAO implementation.
-     *
-     * @param accountDAO
-     */
+  
     public void setAccountsDAO(AccountDAO accountDAO) {
-        this.accountsHolder = accountDAO;
+        this.accountHolder = accountDAO;
     }
 
-    /***
-     * Get access to the TransactionDAO concrete implementation.
-     *
-     * @return
-     */
+
     public TransactionDAO getTransactionsDAO() {
-        return transactionsHolder;
+        return transactionHolder;
     }
 
-    /***
-     * Set the concrete TransactionDAO implementation.
-     *
-     * @param transactionDAO
-     */
+
     public void setTransactionsDAO(TransactionDAO transactionDAO) {
-        this.transactionsHolder = transactionDAO;
+        this.transactionHolder = transactionDAO;
     }
 
-    /***
-     * This method should be implemented by the concrete implementation of this class. It will dictate how the DAO
-     * objects will be initialized.
-     */
     public abstract void setup() throws ExpenseManagerException;
 }
